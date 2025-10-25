@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           pip install invoke pyyaml
-          invoke build
+          dotnet build -c Release
 
           mkdir tmp
           curl -L -O https://github.com/JosefNemec/Playnite/releases/download/10.12/Playnite1012.zip

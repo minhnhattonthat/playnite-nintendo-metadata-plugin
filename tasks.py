@@ -16,7 +16,7 @@ def get_version():
 
 @task
 def build(ctx):
-    ctx.run("dotnet build src -c Release")
+    ctx.run("dotnet build -c Release")
 
 
 @task
@@ -28,7 +28,7 @@ def pack(ctx, toolbox="~/AppData/Local/Playnite/Toolbox.exe"):
     target = REPO / "dist/raw"
     if target.exists():
         shutil.rmtree(str(target))
-    shutil.copytree(str(REPO / "src/bin/Release/net462/"), target)
+    shutil.copytree(str(REPO / "bin/Release/"), target)
 
     toolbox = Path(toolbox).expanduser()
     ctx.run('"{}" pack "{}" dist'.format(toolbox, target))
