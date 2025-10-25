@@ -8,10 +8,10 @@ jobs:
   pre-commit:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
         with:
-          python-version: '3.7'
+          python-version: '3.9'
       - run: |
           pip install pre-commit
           dotnet tool install -g dotnet-format
@@ -20,7 +20,7 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: |
           pip install invoke pyyaml
           invoke build
@@ -31,7 +31,7 @@ jobs:
 
           invoke pack --toolbox ./tmp/playnite/Toolbox.exe
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: artifacts
           path: |
