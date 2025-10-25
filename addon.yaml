@@ -30,3 +30,9 @@ Packages:
       - Add Prefer Playnite game region option
       - Add support for other platforms in UK region
       - General system stability improvements to enhance the user's experience.
+  - Version: 0.3.2
+    RequiredApiVersion: 6.8.0
+    ReleaseDate: 2025-10-25
+    PackageUrl: https://github.com/minhnhattonthat/playnite-nintendo-metadata-plugin/releases/download/v0.3.1/NintendoMetadata_0_3_1.pext
+    Changelog:
+      - Fix retrieve game description in US store
