@@ -87,8 +87,20 @@ namespace NintendoMetadata.Client
             var dataNode = doc.DocumentNode.SelectSingleNode(@"//script[@id='__NEXT_DATA__']");
             var dataJson = JObject.Parse(dataNode.InnerText);
             var sku = (string)dataJson.SelectToken($@"props.pageProps.analytics.product.sku");
-            var fullDescription = (string)dataJson.SelectToken($@"props.pageProps.initialApolloState.Product:{{""sku"":""{sku}""}}.description");
-            game.FullDescription = fullDescription;
+
+            if (dataJson.SelectToken("props.pageProps.initialApolloState") is JObject apolloState)
+            {
+                var productKey = $"Product:{{\"sku\":\"{sku}\"}}";
+                if (apolloState[productKey] is JObject product)
+                {
+                    var fullDescription = (string)product["description({\"html\":true})"];
+                    if (!string.IsNullOrEmpty(fullDescription))
+                    {
+                        logger.Debug(fullDescription);
+                        game.FullDescription = fullDescription;
+                    }
+                }
+            }
 
             return game;
         }
