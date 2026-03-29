@@ -36,3 +36,9 @@ Packages:
     PackageUrl: https://github.com/minhnhattonthat/playnite-nintendo-metadata-plugin/releases/download/v0.3.2/NintendoMetadata_0_3_2.pext
     Changelog:
       - Fix retrieve game description in US store
+  - Version: 0.3.3
+    RequiredApiVersion: 6.8.0
+    ReleaseDate: 2026-03-29
+    PackageUrl: https://github.com/minhnhattonthat/playnite-nintendo-metadata-plugin/releases/download/v0.3.3/NintendoMetadata_0_3_3.pext
+    Changelog:
+      - Add wide cover option for Nintendo Switch games

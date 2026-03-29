@@ -19,6 +19,10 @@ namespace NintendoMetadata
 
         public bool IsPlayniteGameRegionPreferred { get => isPlayniteGameRegionPreferred; set => SetValue(ref isPlayniteGameRegionPreferred, value); }
 
+        private CoverStyle coverStyle = CoverStyle.Square;
+
+        public CoverStyle CoverStyle { get => coverStyle; set => SetValue(ref coverStyle, value); }
+
     }
 
     public class NintendoMetadataSettingsViewModel : ObservableObject, ISettings
@@ -96,6 +100,14 @@ namespace NintendoMetadata
         Japan,
         [Description("Asia")]
         Asia,
+    }
+
+    public enum CoverStyle
+    {
+        [Description("Square")]
+        Square,
+        [Description("Wide (16:9)")]
+        Wide,
     }
 
     public enum NintendoPlatform
