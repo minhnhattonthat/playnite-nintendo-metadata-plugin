@@ -1,39 +1,40 @@
-on:
-  # - push
-  - pull_request
+name: Publish
 
-name: Main
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: write
 
 jobs:
-  pre-commit:
+  publish:
+    if: github.event.pull_request.merged == true
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
-      - run: |
-          pip install pre-commit
-          dotnet tool install -g dotnet-format
-          pre-commit run --all-files --show-diff-on-failure
 
-  build:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: |
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build
+        run: |
           pip install invoke pyyaml
           dotnet build -c Release
 
+      - name: Package
+        run: |
           mkdir tmp
           curl -L -O https://github.com/JosefNemec/Playnite/releases/download/10.12/Playnite1012.zip
           unzip Playnite1012.zip -d tmp/playnite
-
           invoke pack --toolbox ./tmp/playnite/Toolbox.exe
 
-      - uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: artifacts
-          path: |
+          generate_release_notes: true
+          files: |
             dist/*.pext
             dist/*.zip
