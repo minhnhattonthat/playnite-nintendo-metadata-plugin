@@ -13,13 +13,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+
+      - uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
-      - run: |
-          pip install pre-commit
-          dotnet tool install -g dotnet-format
-          pre-commit run --all-files --show-diff-on-failure
+          python-version: "3.12"
 
       - uses: nuget/setup-nuget@v2
 

@@ -31,6 +31,8 @@ namespace NintendoMetadata
 
         public MetadataFile Image { get; set; }
 
+        public MetadataFile WideCoverImage { get; set; }
+
         public MetadataFile LandscapeImage { get; set; }
 
         public string NSUID { get; set; }
@@ -97,10 +99,11 @@ namespace NintendoMetadata
 
             result.Links.Add(new Link("My Nintendo Store", $"https://www.nintendo.com{(string)data["url"]}"));
 
-            //var imageUrl = $"https://assets.nintendo.com/image/upload/ar_16:9,b_auto:border,c_lpad/b_white/f_auto/q_auto/dpr_1/c_scale,w_800/{(string)data["productImage"]}";
             var squareImageUrl = ((string)data["productImageSquare"])?.Replace("_1024", "_512");
-            var imageUrl = $"https://assets.nintendo.com/image/upload/ar_1:1,b_auto:border,c_lpad/b_white/f_auto/q_auto/dpr_1/c_scale,w_512/{(string)data["productImage"]}";
             result.Image = new MetadataFile(squareImageUrl);
+
+            var wideCoverImageUrl = $"https://assets.nintendo.com/image/upload/ar_16:9,b_auto:border,c_lpad/b_white/f_auto/q_auto/dpr_1/c_scale,w_640/{(string)data["productImage"]}";
+            result.WideCoverImage = new MetadataFile(wideCoverImageUrl);
 
             var landscapeImageUrl = $"https://assets.nintendo.com/image/upload/ar_16:9,b_auto:border,c_lpad/b_white/f_auto/q_auto/dpr_1/c_scale,w_1920/{(string)data["productImage"]}";
             result.LandscapeImage = new MetadataFile(landscapeImageUrl);
@@ -141,7 +144,10 @@ namespace NintendoMetadata
 
             var imageUrl = (string)data["image_url_sq_s"] ?? ((string)data["image_url_tm_s"])?.Replace("300w", "500w") ?? (string)data["image_url"];
             result.Image = new MetadataFile(imageUrl);
-            
+
+            var wideCoverImageUrl = ((string)data["image_url_h2x1_s"]) ?? (string)data["image_url"];
+            result.WideCoverImage = new MetadataFile(wideCoverImageUrl);
+
             result.LandscapeImage = new MetadataFile(((string)data["image_url_h2x1_s"])?.Replace("500w", "1600w") ?? (string)data["image_url"]);
 
             result.Name = result.Title;
@@ -181,6 +187,9 @@ namespace NintendoMetadata
             // sw $"https://store-jp.nintendo.com/dw/image/v2/BFGJ_PRD/on/demandware.static/-/Sites-all-master-catalog/ja_JP/dwe8af036b/products/D{(string)data["nsuid"]}/heroBanner/{(string)data["iurl"]}.jpg?sw=1024&strip=false"
             var imageUrl = $"https://store-jp.nintendo.com/dw/image/v2/BFGJ_PRD/on/demandware.static/-/Sites-all-master-catalog/ja_JP/dwe8af036b/products/D{(string)data["nsuid"]}/squareHeroBanner/{(string)data["siurl"]}.jpg?sw=512&strip=false";
             result.Image = new MetadataFile(imageUrl);
+
+            var wideCoverImageUrl = $"https://store-jp.nintendo.com/dw/image/v2/BFGJ_PRD/on/demandware.static/-/Sites-all-master-catalog/ja_JP/dwe8af036b/products/D{(string)data["nsuid"]}/heroBanner/{(string)data["iurl"]}.jpg?sw=640&strip=false";
+            result.WideCoverImage = new MetadataFile(wideCoverImageUrl);
 
             var landscapeImageUrl = $"https://img-eshop.cdn.nintendo.net/i/{data["iurl"]}.jpg";
             result.LandscapeImage = new MetadataFile(landscapeImageUrl);
@@ -230,12 +239,13 @@ namespace NintendoMetadata
             var landscapeImageUrl = (string)data.SelectToken("common.heroImage169.url");
             if (landscapeImageUrl != null)
             {
+                result.WideCoverImage = new MetadataFile(landscapeImageUrl + "?w=640");
                 result.LandscapeImage = new MetadataFile(landscapeImageUrl);
             }
 
             if (result.Image == null)
             {
-                result.Image = result.LandscapeImage;
+                result.Image = result.WideCoverImage ?? result.LandscapeImage;
             }
 
             result.Name = result.Title;

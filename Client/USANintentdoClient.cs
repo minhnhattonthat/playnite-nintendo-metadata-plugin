@@ -85,10 +85,55 @@ namespace NintendoMetadata.Client
             var web = new HtmlWeb();
             var doc = web.Load(link.Url);
             var dataNode = doc.DocumentNode.SelectSingleNode(@"//script[@id='__NEXT_DATA__']");
+            if (dataNode == null)
+            {
+                return game;
+            }
+
             var dataJson = JObject.Parse(dataNode.InnerText);
             var sku = (string)dataJson.SelectToken($@"props.pageProps.analytics.product.sku");
-            var fullDescription = (string)dataJson.SelectToken($@"props.pageProps.initialApolloState.Product:{{""sku"":""{sku}""}}.description");
-            game.FullDescription = fullDescription;
+
+            if (dataJson.SelectToken("props.pageProps.initialApolloState") is JObject apolloState)
+            {
+                var productKey = $"Product:{{\"sku\":\"{sku}\"}}";
+                if (apolloState[productKey] is JObject product)
+                {
+                    var fullDescription = (string)product["description({\"html\":true})"];
+                    if (!string.IsNullOrEmpty(fullDescription))
+                    {
+                        logger.Debug(fullDescription);
+
+                        // Local function to remove a single outer <p> wrapper while preserving inner HTML
+                        string RemoveOuterP(string html)
+                        {
+                            if (string.IsNullOrWhiteSpace(html))
+                            {
+                                return html;
+                            }
+
+                            var trimmed = html.Trim();
+                            var tmpDoc = new HtmlDocument();
+                            tmpDoc.LoadHtml(trimmed);
+
+                            // Consider only non-whitespace child nodes
+                            var significantChildren = tmpDoc.DocumentNode.ChildNodes
+                                .Where(n => !(n.NodeType == HtmlNodeType.Text && string.IsNullOrWhiteSpace(n.InnerText)))
+                                .ToList();
+
+                            if (significantChildren.Count == 1 && 
+                                string.Equals(significantChildren[0].Name, "p", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Return inner HTML of the single top-level <p> node
+                                return significantChildren[0].InnerHtml;
+                            }
+
+                            return html;
+                        }
+
+                        game.FullDescription = RemoveOuterP(fullDescription);
+                    }
+                }
+            }
 
             return game;
         }
