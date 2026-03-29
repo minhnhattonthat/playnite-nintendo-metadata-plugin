@@ -1,16 +1,15 @@
 name: Publish
 
 on:
-  pull_request:
-    types:
-      - closed
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: write
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
