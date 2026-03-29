@@ -1,11 +1,16 @@
-on:
-  # - push
-  - pull_request
+name: Publish
 
-name: Main
+on:
+  pull_request:
+    types:
+      - closed
+
+permissions:
+  contents: write
 
 jobs:
-  pre-commit:
+  publish:
+    if: github.event.pull_request.merged == true
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,23 +22,28 @@ jobs:
           dotnet tool install -g dotnet-format
           pre-commit run --all-files --show-diff-on-failure
 
-  build:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: |
-          pip install invoke pyyaml
-          dotnet build -c Release
+      - uses: nuget/setup-nuget@v2
 
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Restore
+        run: nuget restore NintendoMetadata.sln
+
+      - name: Build
+        run: msbuild NintendoMetadata.csproj -p:Configuration=Release
+
+      - name: Package
+        run: |
+          pip install invoke pyyaml
           mkdir tmp
           curl -L -O https://github.com/JosefNemec/Playnite/releases/download/10.12/Playnite1012.zip
           unzip Playnite1012.zip -d tmp/playnite
-
           invoke pack --toolbox ./tmp/playnite/Toolbox.exe
 
-      - uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: artifacts
-          path: |
+          generate_release_notes: true
+          files: |
             dist/*.pext
             dist/*.zip

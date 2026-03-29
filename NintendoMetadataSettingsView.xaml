@@ -32,5 +32,22 @@
         </StackPanel>
         <CheckBox Content="Prefer Playnite game region" Margin="0,15,0,0"
                   IsChecked="{Binding Settings.IsPlayniteGameRegionPreferred}"/>
+        <StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+            <TextBlock Text="Cover Style" VerticalAlignment="Center"/>
+            <ComboBox SelectedValue="{Binding Settings.CoverStyle}"
+                      Margin="5,0,0,0">
+                <ComboBox.ItemsSource>
+                    <x:Array Type="{x:Type sys:Enum}">
+                        <nintendata:CoverStyle>Square</nintendata:CoverStyle>
+                        <nintendata:CoverStyle>Wide</nintendata:CoverStyle>
+                    </x:Array>
+                </ComboBox.ItemsSource>
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource EnumValueConverter}}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </StackPanel>
     </StackPanel>
 </UserControl>
