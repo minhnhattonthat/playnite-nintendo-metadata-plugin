@@ -295,6 +295,11 @@ namespace NintendoMetadata
         {
             if (AvailableFields.Contains(MetadataField.CoverImage))
             {
+                var coverStyle = ((NintendoMetadataSettingsViewModel)plugin.GetSettings(false)).Settings.CoverStyle;
+                if (coverStyle == CoverStyle.Wide && this.game.WideCoverImage?.HasImageData == true)
+                {
+                    return this.game.WideCoverImage;
+                }
                 return this.game.Image;
             }
             return base.GetCoverImage(args);
