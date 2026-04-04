@@ -14,10 +14,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
       - uses: nuget/setup-nuget@v2
 
       - uses: microsoft/setup-msbuild@v2
@@ -28,13 +24,26 @@ jobs:
       - name: Build
         run: msbuild NintendoMetadata.csproj -p:Configuration=Release
 
+      - name: Setup Playnite
+        run: |
+          Invoke-WebRequest -Uri "https://github.com/JosefNemec/Playnite/releases/download/10.12/Playnite1012.zip" -OutFile "$Env:GITHUB_WORKSPACE\Playnite.zip"
+          Expand-Archive "$Env:GITHUB_WORKSPACE\Playnite.zip" -DestinationPath "$Env:GITHUB_WORKSPACE\Playnite"
+
       - name: Package
         run: |
-          pip install invoke pyyaml
-          mkdir tmp
-          curl -L -O https://github.com/JosefNemec/Playnite/releases/download/10.12/Playnite1012.zip
-          unzip Playnite1012.zip -d tmp/playnite
-          invoke pack --toolbox ./tmp/playnite/Toolbox.exe
+          $buildOutput = "$Env:GITHUB_WORKSPACE\bin\Release"
+          $playniteDlls = Get-ChildItem "$Env:GITHUB_WORKSPACE\Playnite" -Filter *.dll -Name
+
+          Remove-Item "$buildOutput\*" -Include $playniteDlls
+          Remove-Item "$buildOutput\*.pdb"
+          Remove-Item "$buildOutput\*.xml"
+
+          & "$Env:GITHUB_WORKSPACE\Playnite\Toolbox.exe" pack $buildOutput "$Env:GITHUB_WORKSPACE\dist"
+
+          $version = (Get-Content "$Env:GITHUB_WORKSPACE\extension.yaml" | Select-String "^Version:").ToString().Split(":")[1].Trim()
+          Get-ChildItem "$Env:GITHUB_WORKSPACE\dist\*.pext" | ForEach-Object {
+            Move-Item $_.FullName "$Env:GITHUB_WORKSPACE\dist\Nintendo_Metadata_v$version.pext"
+          }
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -42,4 +51,3 @@ jobs:
           generate_release_notes: true
           files: |
             dist/*.pext
-            dist/*.zip
